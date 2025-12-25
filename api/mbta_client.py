@@ -150,7 +150,7 @@ async def fetch_predictions(
     params["sort"] = "arrival_time"
     params["include"] = "trip"
 
-    params["page[limit]"] = str(limit)
+    params["page[limit]"] = str(limit + 10)
 
     async with httpx.AsyncClient() as client:
         response = await client.get(f"{MBTA_BASE_URL}/predictions", params=params)
@@ -201,4 +201,8 @@ async def fetch_predictions(
             )
 
         predictions.sort(key=lambda p: p.arrival_time or float("inf"))
-        return predictions
+
+        now_epoch = int(datetime.now().timestamp())
+        predictions = [p for p in predictions if p.arrival_time and p.arrival_time >= now_epoch]
+
+        return predictions[:limit]
