@@ -1,6 +1,25 @@
-/build/
-/.gradle/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+.venv/
+ENV/
+
 *.iml
 .idea/
 .vscode/
+
 *.log
+
+.vercel/
+
+# Environment
+.env
+.env.local
+.vercel
