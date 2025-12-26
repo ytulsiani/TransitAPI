@@ -7,6 +7,17 @@ from pydantic import BaseModel
 
 MBTA_BASE_URL = "https://api-v3.mbta.com"
 
+HEADSIGN_ABBREVIATIONS = {
+    "Government Center": "Govt Ctr",
+    "North Station": "North Sta",
+    "South Station": "South Sta",
+    "Park Street": "Park St",
+    "Downtown Crossing": "Dtx Crossing",
+    "Cleveland Circle": "Clvlnd Cir",
+    "Heath Street": "Heath St",
+    "Union Square": "Union Sq",
+}
+
 lines_cache: TTLCache = TTLCache(maxsize=1, ttl=300)
 stops_cache: TTLCache = TTLCache(maxsize=100, ttl=300)
 directions_cache: TTLCache = TTLCache(maxsize=100, ttl=300)
@@ -39,6 +50,12 @@ class MbtaClientError(Exception):
         self.message = message
         self.status_code = status_code
         super().__init__(message)
+
+
+def abbreviate_headsign(headsign: Optional[str]) -> Optional[str]:
+    if headsign is None:
+        return None
+    return HEADSIGN_ABBREVIATIONS.get(headsign, headsign)
 
 
 async def fetch_lines() -> list[LineSummary]:
@@ -194,7 +211,7 @@ async def fetch_predictions(
 
             predictions.append(
                 PredictionSummary(
-                    headsign=headsign,
+                    headsign=abbreviate_headsign(headsign),
                     arrival_time=arrival_epoch,
                     arrival_uncertainty=attributes.get("arrival_uncertainty"),
                 )
