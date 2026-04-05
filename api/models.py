@@ -7,6 +7,7 @@ class LineSummary(BaseModel):
     id: Optional[str] = None
     long_name: Optional[str] = None
     routes: list[str] = []
+    type: Optional[str] = None
 
 
 class StopSummary(BaseModel):
