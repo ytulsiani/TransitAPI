@@ -3,7 +3,7 @@ from typing import Optional
 
 from api.models import DirectionSummary, LineSummary, PredictionSummary, StopSummary
 
-HEADSIGN_MAX_LENGTH = 20
+HEADSIGN_MAX_LENGTH = 14
 
 
 def shorten_headsign(text: str) -> str:
