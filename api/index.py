@@ -69,6 +69,7 @@ class PredictionRequest(BaseModel):
     routes: Optional[set[str]] = None
     direction: Optional[int] = None
     limit: int = 10
+    route_type: Optional[str] = None
 
 
 class MetrosResponse(BaseModel):
@@ -123,16 +124,20 @@ async def get_metro_lines(metro_id: str):
 
 
 @app.get("/metros/{metro_id}/directions/{route}", response_model=DirectionsResponse)
-async def get_metro_directions(metro_id: str, route: str):
+async def get_metro_directions(
+    metro_id: str, route: str, route_type: Optional[str] = None
+):
     client = _get_client(metro_id)
-    directions = await client.fetch_directions(route)
+    directions = await client.fetch_directions(route, route_type=route_type)
     return DirectionsResponse(directions=directions)
 
 
 @app.get("/metros/{metro_id}/stops/{route}", response_model=StopsResponse)
-async def get_metro_stops(metro_id: str, route: str):
+async def get_metro_stops(
+    metro_id: str, route: str, route_type: Optional[str] = None
+):
     client = _get_client(metro_id)
-    stops = await client.fetch_stops(route)
+    stops = await client.fetch_stops(route, route_type=route_type)
     return StopsResponse(stops=stops)
 
 
@@ -144,6 +149,7 @@ async def get_metro_predictions(metro_id: str, request: PredictionRequest):
         routes=request.routes,
         direction=request.direction,
         limit=request.limit,
+        route_type=request.route_type,
     )
     return PredictionsResponse(predictions=predictions)
 
@@ -159,16 +165,16 @@ async def get_lines():
 
 
 @app.get("/directions/{route}", response_model=DirectionsResponse)
-async def get_directions(route: str):
+async def get_directions(route: str, route_type: Optional[str] = None):
     client = _get_client("mbta")
-    directions = await client.fetch_directions(route)
+    directions = await client.fetch_directions(route, route_type=route_type)
     return DirectionsResponse(directions=directions)
 
 
 @app.get("/stops/{route}", response_model=StopsResponse)
-async def get_stops(route: str):
+async def get_stops(route: str, route_type: Optional[str] = None):
     client = _get_client("mbta")
-    stops = await client.fetch_stops(route)
+    stops = await client.fetch_stops(route, route_type=route_type)
     return StopsResponse(stops=stops)
 
 
@@ -180,5 +186,6 @@ async def get_predictions(request: PredictionRequest):
         routes=request.routes,
         direction=request.direction,
         limit=request.limit,
+        route_type=request.route_type,
     )
     return PredictionsResponse(predictions=predictions)

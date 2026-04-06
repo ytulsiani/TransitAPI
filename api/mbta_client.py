@@ -75,7 +75,9 @@ class MbtaClient(TransitClient):
             self.lines_cache[cache_key] = lines
             return lines
 
-    async def fetch_stops(self, route_id: str) -> list[StopSummary]:
+    async def fetch_stops(
+        self, route_id: str, route_type: Optional[str] = None
+    ) -> list[StopSummary]:
         if route_id in self.stops_cache:
             return self.stops_cache[route_id]
 
@@ -102,7 +104,9 @@ class MbtaClient(TransitClient):
             self.stops_cache[route_id] = stops
             return stops
 
-    async def fetch_directions(self, route_id: str) -> list[DirectionSummary]:
+    async def fetch_directions(
+        self, route_id: str, route_type: Optional[str] = None
+    ) -> list[DirectionSummary]:
         if route_id in self.directions_cache:
             return self.directions_cache[route_id]
 
@@ -132,6 +136,7 @@ class MbtaClient(TransitClient):
         routes: Optional[set[str]] = None,
         direction: Optional[int] = None,
         limit: int = 10,
+        route_type: Optional[str] = None,
     ) -> list[PredictionSummary]:
         params = {"filter[stop]": stop_id}
 
