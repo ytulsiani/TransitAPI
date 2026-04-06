@@ -8,6 +8,7 @@ class LineSummary(BaseModel):
     long_name: Optional[str] = None
     routes: list[str] = []
     type: Optional[str] = None
+    has_directions: bool = True
 
 
 class StopSummary(BaseModel):

@@ -114,6 +114,7 @@ class WmataClient(TransitClient):
                         long_name=route.get("Name"),
                         routes=[route_id] if route_id else [],
                         type="bus",
+                        has_directions=False,
                     )
                 )
 
