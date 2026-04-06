@@ -232,18 +232,19 @@ class WmataClient(TransitClient):
     async def _fetch_bus_directions(
         self, client: httpx.AsyncClient, route_id: str
     ) -> list[DirectionSummary]:
+        # Name format is always "ROUTE_ID - ENDPOINT1 - ENDPOINT2"
         bus_routes = await self._fetch_bus_routes(client)
         for route in bus_routes:
             if route.get("RouteID") == route_id:
-                desc = route.get("LineDescription", "")
-                parts = desc.split("-", 1)
-                if len(parts) == 2:
+                name = route.get("Name", "")
+                name_parts = name.split(" - ", 2)
+                if len(name_parts) == 3:
                     return [
-                        DirectionSummary(id="0", destination=parts[0].strip()),
-                        DirectionSummary(id="1", destination=parts[1].strip()),
+                        DirectionSummary(id="0", destination=name_parts[1].strip().title()),
+                        DirectionSummary(id="1", destination=name_parts[2].strip().title()),
                     ]
                 return [
-                    DirectionSummary(id="0", destination=desc or "Direction 1"),
+                    DirectionSummary(id="0", destination="Direction 1"),
                     DirectionSummary(id="1", destination="Direction 2"),
                 ]
 
