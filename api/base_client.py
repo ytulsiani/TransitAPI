@@ -8,7 +8,7 @@ HEADSIGN_MAX_LENGTH = 14
 
 def shorten_headsign(text: str) -> str:
     if len(text) > HEADSIGN_MAX_LENGTH:
-        text = text[:HEADSIGN_MAX_LENGTH - 1] + "…"
+        text = text[:HEADSIGN_MAX_LENGTH]
     return text
 
 
