@@ -3,6 +3,14 @@ from typing import Optional
 
 from api.models import DirectionSummary, LineSummary, PredictionSummary, StopSummary
 
+HEADSIGN_MAX_LENGTH = 14
+
+
+def shorten_headsign(text: str) -> str:
+    if len(text) > HEADSIGN_MAX_LENGTH:
+        text = text[:HEADSIGN_MAX_LENGTH]
+    return text
+
 
 class TransitClient(ABC):
 

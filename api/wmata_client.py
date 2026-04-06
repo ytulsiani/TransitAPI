@@ -1,10 +1,11 @@
+import re
 from datetime import datetime
 from typing import Optional
 
 import httpx
 from cachetools import TTLCache
 
-from api.base_client import TransitClient
+from api.base_client import TransitClient, shorten_headsign
 from api.models import (
     DirectionSummary,
     LineSummary,
@@ -14,6 +15,14 @@ from api.models import (
 )
 
 WMATA_BASE_URL = "https://api.wmata.com"
+
+_DIR_PATTERN = re.compile(r"\b(North|South|East|West)\b")
+_DIR_MAP = {"North": "N", "South": "S", "East": "E", "West": "W"}
+
+
+def _abbreviate_directions(text: str) -> str:
+    text = _DIR_PATTERN.sub(lambda m: _DIR_MAP[m.group()], text)
+    return shorten_headsign(text)
 
 
 class WmataClient(TransitClient):
@@ -105,6 +114,7 @@ class WmataClient(TransitClient):
                         long_name=route.get("Name"),
                         routes=[route_id] if route_id else [],
                         type="bus",
+                        has_directions=False,
                     )
                 )
 
@@ -232,18 +242,19 @@ class WmataClient(TransitClient):
     async def _fetch_bus_directions(
         self, client: httpx.AsyncClient, route_id: str
     ) -> list[DirectionSummary]:
+        # Name format is always "ROUTE_ID - ENDPOINT1 - ENDPOINT2"
         bus_routes = await self._fetch_bus_routes(client)
         for route in bus_routes:
             if route.get("RouteID") == route_id:
-                desc = route.get("LineDescription", "")
-                parts = desc.split("-", 1)
-                if len(parts) == 2:
+                name = route.get("Name", "")
+                name_parts = name.split(" - ", 2)
+                if len(name_parts) == 3:
                     return [
-                        DirectionSummary(id="0", destination=parts[0].strip()),
-                        DirectionSummary(id="1", destination=parts[1].strip()),
+                        DirectionSummary(id="0", destination=name_parts[1].strip().title()),
+                        DirectionSummary(id="1", destination=name_parts[2].strip().title()),
                     ]
                 return [
-                    DirectionSummary(id="0", destination=desc or "Direction 1"),
+                    DirectionSummary(id="0", destination="Direction 1"),
                     DirectionSummary(id="1", destination="Direction 2"),
                 ]
 
@@ -354,7 +365,7 @@ class WmataClient(TransitClient):
 
             predictions.append(
                 PredictionSummary(
-                    headsign=pred.get("DirectionText", ""),
+                    headsign=_abbreviate_directions(pred.get("DirectionText", "")),
                     arrival_time=now_epoch + (int(minutes) * 60),
                     arrival_uncertainty=None,
                 )
