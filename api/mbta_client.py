@@ -4,7 +4,7 @@ from typing import Optional
 import httpx
 from cachetools import TTLCache
 
-from api.base_client import TransitClient
+from api.base_client import TransitClient, shorten_headsign
 from api.models import (
     DirectionSummary,
     LineSummary,
@@ -195,7 +195,7 @@ class MbtaClient(TransitClient):
 
                 predictions.append(
                     PredictionSummary(
-                        headsign=_abbreviate_headsign(headsign),
+                        headsign=shorten_headsign(_abbreviate_headsign(headsign)),
                         arrival_time=arrival_epoch,
                         arrival_uncertainty=attributes.get("arrival_uncertainty"),
                     )

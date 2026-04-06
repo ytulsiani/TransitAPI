@@ -1,10 +1,11 @@
+import re
 from datetime import datetime
 from typing import Optional
 
 import httpx
 from cachetools import TTLCache
 
-from api.base_client import TransitClient
+from api.base_client import TransitClient, shorten_headsign
 from api.models import (
     DirectionSummary,
     LineSummary,
@@ -14,6 +15,14 @@ from api.models import (
 )
 
 WMATA_BASE_URL = "https://api.wmata.com"
+
+_DIR_PATTERN = re.compile(r"\b(North|South|East|West)\b")
+_DIR_MAP = {"North": "N", "South": "S", "East": "E", "West": "W"}
+
+
+def _abbreviate_directions(text: str) -> str:
+    text = _DIR_PATTERN.sub(lambda m: _DIR_MAP[m.group()], text)
+    return shorten_headsign(text)
 
 
 class WmataClient(TransitClient):
@@ -355,7 +364,7 @@ class WmataClient(TransitClient):
 
             predictions.append(
                 PredictionSummary(
-                    headsign=pred.get("DirectionText", ""),
+                    headsign=_abbreviate_directions(pred.get("DirectionText", "")),
                     arrival_time=now_epoch + (int(minutes) * 60),
                     arrival_uncertainty=None,
                 )
