@@ -3,6 +3,7 @@ from typing import Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -16,11 +17,19 @@ from api.models import (
     StopSummary,
     TransitClientError,
 )
+from api.mta_client import MtaClient
 from api.wmata_client import WmataClient
 
 load_dotenv()
 
 app = FastAPI(title="Transit Display API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- Metro Registry ---
 
@@ -39,6 +48,12 @@ if _wmata_key:
         "region": "Washington, DC",
         "client": WmataClient(api_key=_wmata_key),
     }
+
+METROS["mta"] = {
+    "name": "MTA",
+    "region": "New York, NY",
+    "client": MtaClient(bus_api_key=os.environ.get("MTA_BUS_API_KEY")),
+}
 
 
 def _get_client(metro_id: str) -> TransitClient:
