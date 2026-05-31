@@ -329,7 +329,7 @@ class MtaClient(TransitClient):
                     if arrival is None:
                         continue
                     if arrival.tzinfo is None:
-                        arrival = arrival.replace(tzinfo=NY_TZ)
+                        arrival = arrival.astimezone(timezone.utc)
                     if arrival < now:
                         continue
                     predictions.append(
