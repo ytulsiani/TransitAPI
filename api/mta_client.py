@@ -307,7 +307,7 @@ class MtaClient(TransitClient):
         else:
             target_stops = {f"{stop_id}N", f"{stop_id}S"}
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now()
         predictions: list[PredictionSummary] = []
 
         for url in feed_urls:
@@ -328,8 +328,6 @@ class MtaClient(TransitClient):
                     arrival = stu.arrival
                     if arrival is None:
                         continue
-                    if arrival.tzinfo is None:
-                        arrival = arrival.replace(tzinfo=NY_TZ)
                     if arrival < now:
                         continue
                     predictions.append(
