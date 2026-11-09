@@ -18,6 +18,7 @@ from api.models import (
     TransitClientError,
 )
 from api.mta_client import MtaClient
+from api.weather import router as weather_router
 from api.wmata_client import WmataClient
 
 load_dotenv()
@@ -30,6 +31,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(weather_router)
 
 # --- Metro Registry ---
 
